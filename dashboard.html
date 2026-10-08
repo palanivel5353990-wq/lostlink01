@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>OFF-GRID | LoRaWAN Tracking System</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:Segoe UI,Arial,sans-serif;
+}
+
+body{
+    background:#050914;
+    color:#e5e7eb;
+    min-height:100vh;
+    padding:18px;
+}
+
+header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:15px 20px;
+    background:#0b1220;
+    border:1px solid #1e293b;
+    border-radius:14px;
+    margin-bottom:18px;
+}
+
+.logo{
+    color:#38bdf8;
+    font-size:24px;
+    font-weight:bold;
+}
+
+.subtitle{
+    color:#64748b;
+    font-size:12px;
+    margin-top:4px;
+}
+
+.status{
+    background:#052e16;
+    color:#4ade80;
+    border:1px solid #16a34a;
+    padding:8px 14px;
+    border-radius:20px;
+    font-size:12px;
+    font-weight:bold;
+}
+
+/* TOP METRICS */
+
+.metrics{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:15px;
+    margin-bottom:18px;
+}
+
+.metric-card{
+    background:#0b1220;
+    border:1px solid #1e293b;
+    border-radius:14px;
+    padding:18px;
+}
+
+.metric-title{
+    color:#64748b;
+    font-size:12px;
+    margin-bottom:8px;
+}
+
+.metric-value{
+    font-size:24px;
+    font-weight:bold;
+    color:#f8fafc;
+}
+
+.blue{color:#38bdf8}
+.green{color:#4ade80}
+.red{color:#f87171}
+.yellow{color:#facc15}
+
+/* MAIN GRID */
+
+.main{
+    display:grid;
+    grid-template-columns:1fr 1.7fr;
+    gap:18px;
+}
+
+/* CARD */
+
+.card{
+    background:#0b1220;
+    border:1px solid #1e293b;
+    border-radius:14px;
+    padding:18px;
+    margin-bottom:18px;
+}
+
+.card-title{
+    color:#cbd5e1;
+    font-size:15px;
+    font-weight:bold;
+    margin-bottom:16px;
+}
+
+/* TELEMETRY */
+
+.data-row{
+    display:flex;
+    justify-content:space-between;
+    padding:11px 0;
+    border-bottom:1px solid #172033;
+    font-size:13px;
+}
+
+.data-row span:first-child{
+    color:#64748b;
+}
+
+.data-row span:last-child{
+    color:#f8fafc;
+    font-weight:600;
+}
+
+/* BATTERY */
+
+.battery{
+    height:12px;
+    background:#1e293b;
+    border-radius:10px;
+    overflow:hidden;
+    margin-top:10px;
+}
+
+.battery-fill{
+    height:100%;
+    width:18%;
+    background:#22c55e;
+    transition:.5s;
+}
+
+/* MAP */
+
+.map{
+    height:300px;
+    position:relative;
+    overflow:hidden;
+    border-radius:12px;
+    border:1px solid #075985;
+    background:
+        linear-gradient(#0f2740 1px,transparent 1px),
+        linear-gradient(90deg,#0f2740 1px,transparent 1px),
+        #06111f;
+    background-size:35px 35px;
+}
+
+.map-label{
+    position:absolute;
+    top:12px;
+    left:12px;
+    background:#020617;
+    padding:7px 10px;
+    border-radius:6px;
+    color:#38bdf8;
+    font-size:11px;
+}
+
+.location{
+    position:absolute;
+    top:46%;
+    left:54%;
+    width:18px;
+    height:18px;
+    background:#ef4444;
+    border-radius:50%;
+    box-shadow:0 0 20px #ef4444;
+    animation:pulse 1.5s infinite;
+}
+
+.location::after{
+    content:"";
+    position:absolute;
+    width:45px;
+    height:45px;
+    border:1px solid #ef4444;
+    border-radius:50%;
+    left:-14px;
+    top:-14px;
+    animation:ring 2s infinite;
+}
+
+.gateway{
+    position:absolute;
+    width:10px;
+    height:10px;
+    background:#38bdf8;
+    border-radius:50%;
+    box-shadow:0 0 12px #38bdf8;
+}
+
+.g1{top:25%;left:25%}
+.g2{top:70%;left:75%}
+.g3{top:20%;left:80%}
+
+.line{
+    position:absolute;
+    height:1px;
+    background:#38bdf8;
+    opacity:.35;
+    transform-origin:left;
+}
+
+.line1{
+    width:230px;
+    top:30%;
+    left:27%;
+    transform:rotate(23deg);
+}
+
+.line2{
+    width:220px;
+    top:65%;
+    left:52%;
+    transform:rotate(-25deg);
+}
+
+.line3{
+    width:250px;
+    top:24%;
+    left:78%;
+    transform:rotate(130deg);
+}
+
+/* RADAR */
+
+.radar{
+    height:300px;
+    border-radius:12px;
+    background:#020617;
+    border:1px solid #0369a1;
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+}
+
+.circle{
+    position:absolute;
+    border:1px solid #075985;
+    border-radius:50%;
+}
+
+.c1{width:90px;height:90px}
+.c2{width:170px;height:170px}
+.c3{width:250px;height:250px}
+
+.sweep{
+    position:absolute;
+    width:125px;
+    height:2px;
+    background:#38bdf8;
+    transform-origin:left center;
+    animation:rotate 3s linear infinite;
+}
+
+.radar-target{
+    position:absolute;
+    width:10px;
+    height:10px;
+    background:#ef4444;
+    border-radius:50%;
+    box-shadow:0 0 15px #ef4444;
+    top:38%;
+    left:62%;
+}
+
+/* GATEWAYS */
+
+.gateway-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:12px;
+    background:#080f1d;
+    border-radius:9px;
+    margin-bottom:8px;
+}
+
+.g-name{
+    font-weight:bold;
+    font-size:13px;
+}
+
+.signal{
+    font-size:12px;
+    color:#4ade80;
+}
+
+/* CHART */
+
+.chart{
+    height:130px;
+    display:flex;
+    align-items:end;
+    gap:5px;
+    padding:10px;
+    border-bottom:1px solid #334155;
+}
+
+.bar{
+    flex:1;
+    background:#38bdf8;
+    opacity:.7;
+    border-radius:4px 4px 0 0;
+    transition:.4s;
+}
+
+/* ALERT */
+
+.alert{
+    padding:12px;
+    border-left:3px solid #facc15;
+    background:#17130a;
+    color:#facc15;
+    border-radius:5px;
+    font-size:12px;
+}
+
+/* BUTTON */
+
+button{
+    width:100%;
+    padding:12px;
+    border:0;
+    border-radius:8px;
+    background:#0284c7;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+    margin-top:12px;
+}
+
+button:hover{
+    background:#0369a1;
+}
+
+/* ANIMATIONS */
+
+@keyframes rotate{
+    from{transform:rotate(0deg)}
+    to{transform:rotate(360deg)}
+}
+
+@keyframes pulse{
+    0%{transform:scale(1);opacity:1}
+    50%{transform:scale(1.25);opacity:.6}
+    100%{transform:scale(1);opacity:1}
+}
+
+@keyframes ring{
+    0%{transform:scale(.5);opacity:1}
+    100%{transform:scale(1.6);opacity:0}
+}
+
+/* RESPONSIVE */
+
+@media(max-width:900px){
+
+    .metrics{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .main{
+        grid-template-columns:1fr;
+    }
+}
+
+@media(max-width:600px){
+
+    body{
+        padding:10px;
+    }
+
+    header{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:12px;
+    }
+
+    .metrics{
+        grid-template-columns:1fr 1fr;
+        gap:8px;
+    }
+
+    .metric-card{
+        padding:13px;
+    }
+
+    .metric-value{
+        font-size:18px;
+    }
+
+    .map,.radar{
+        height:250px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+
+<header>
+
+<div>
+    <div class="logo">📡 OFF-GRID</div>
+    <div class="subtitle">
+        LoRaWAN Emergency Tracking & Recovery System
+    </div>
+</div>
+
+<div class="status">
+    ● SYSTEM ONLINE
+</div>
+
+</header>
+
+
+<!-- METRICS -->
+
+<section class="metrics">
+
+<div class="metric-card">
+    <div class="metric-title">TARGET DEVICE</div>
+    <div class="metric-value blue">OG-865</div>
+</div>
+
+<div class="metric-card">
+    <div class="metric-title">BATTERY RESERVE</div>
+    <div class="metric-value green" id="battery">0.82%</div>
+</div>
+
+<div class="metric-card">
+    <div class="metric-title">RSSI</div>
+    <div class="metric-value" id="rssi">-94 dBm</div>
+</div>
+
+<div class="metric-card">
+    <div class="metric-title">SNR</div>
+    <div class="metric-value yellow" id="snr">+8.5 dB</div>
+</div>
+
+</section>
+
+
+<div class="main">
+
+<!-- LEFT COLUMN -->
+
+<div>
+
+<div class="card">
+
+<div class="card-title">
+📊 Device Telemetry
+</div>
+
+<div class="data-row">
+<span>Device ID</span>
+<span>OG-SMARTPHONE-865</span>
+</div>
+
+<div class="data-row">
+<span>Network</span>
+<span>LoRaWAN</span>
+</div>
+
+<div class="data-row">
+<span>Frequency</span>
+<span>865.2 MHz</span>
+</div>
+
+<div class="data-row">
+<span>Coordinates</span>
+<span id="coords">13.0827° N, 80.2707° E</span>
+</div>
+
+<div class="data-row">
+<span>Last Packet</span>
+<span id="packet">Just now</span>
+</div>
+
+<div class="data-row">
+<span>Tracking Mode</span>
+<span class="green">Emergency</span>
+</div>
+
+</div>
+
+
+<div class="card">
+
+<div class="card-title">
+🔋 Emergency Battery Reserve
+</div>
+
+<div class="battery">
+    <div class="battery-fill" id="batteryBar"></div>
+</div>
+
+<p style="font-size:12px;color:#64748b;margin-top:8px">
+Low-power tracking mode active
+</p>
+
+</div>
+
+
+<div class="card">
+
+<div class="card-title">
+🛰️ LoRaWAN Gateways
+</div>
+
+<div class="gateway-row">
+    <span class="g-name">Tower-A</span>
+    <span class="signal">RSSI -94 dBm</span>
+</div>
+
+<div class="gateway-row">
+    <span class="g-name">Tower-B</span>
+    <span class="signal">RSSI -102 dBm</span>
+</div>
+
+<div class="gateway-row">
+    <span class="g-name">Tower-C</span>
+    <span class="signal">RSSI -98 dBm</span>
+</div>
+
+</div>
+
+
+<div class="card">
+
+<div class="card-title">
+⚠️ System Alert
+</div>
+
+<div class="alert">
+Target device power is critically low.
+Emergency LoRaWAN tracking remains active.
+</div>
+
+<button onclick="locateTarget()">
+📍 LOCATE TARGET
+</button>
+
+</div>
+
+</div>
+
+
+<!-- RIGHT COLUMN -->
+
+<div>
+
+<div class="card">
+
+<div class="card-title">
+🗺️ Estimated Target Location
+</div>
+
+<div class="map">
+
+<div class="map-label">
+LIVE TRIANGULATION
+</div>
+
+<div class="gateway g1"></div>
+<div class="gateway g2"></div>
+<div class="gateway g3"></div>
+
+<div class="line line1"></div>
+<div class="line line2"></div>
+<div class="line line3"></div>
+
+<div class="location" id="location"></div>
+
+</div>
+
+<p style="
+text-align:center;
+font-size:12px;
+color:#64748b;
+margin-top:10px">
+
+Estimated location:
+<b style="color:#38bdf8">Chennai Region</b>
+
+</p>
+
+</div>
+
+
+<div class="card">
+
+<div class="card-title">
+📡 Signal Triangulation Radar
+</div>
+
+<div class="radar">
+
+<div class="circle c1"></div>
+<div class="circle c2"></div>
+<div class="circle c3"></div>
+
+<div class="sweep"></div>
+
+<div class="radar-target"></div>
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<div class="card-title">
+📈 Live Signal Strength
+</div>
+
+<div class="chart" id="chart">
+
+<div class="bar" style="height:40%"></div>
+<div class="bar" style="height:55%"></div>
+<div class="bar" style="height:48%"></div>
+<div class="bar" style="height:70%"></div>
+<div class="bar" style="height:62%"></div>
+<div class="bar" style="height:80%"></div>
+<div class="bar" style="height:65%"></div>
+<div class="bar" style="height:75%"></div>
+<div class="bar" style="height:58%"></div>
+<div class="bar" style="height:68%"></div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* SIMULATED LIVE DATA */
+
+let battery = 0.82;
+
+function updateData(){
+
+    /* RSSI simulation */
+
+    let rssi = -90 - Math.floor(Math.random()*18);
+
+    document.getElementById("rssi").innerText =
+        rssi + " dBm";
+
+
+    /* SNR simulation */
+
+    let snr = (7 + Math.random()*3).toFixed(1);
+
+    document.getElementById("snr").innerText =
+        "+" + snr + " dB";
+
+
+    /* Battery */
+
+    battery -= 0.001;
+
+    if(battery < 0.1){
+        battery = 0.82;
+    }
+
+    document.getElementById("battery").innerText =
+        battery.toFixed(2) + "%";
+
+    document.getElementById("batteryBar").style.width =
+        Math.max(battery*20,2) + "%";
+
+
+    /* Coordinates simulation */
+
+    let lat = 13.0827 + (Math.random()-0.5)*0.002;
+    let lon = 80.2707 + (Math.random()-0.5)*0.002;
+
+    document.getElementById("coords").innerText =
+        lat.toFixed(4) + "° N, " +
+        lon.toFixed(4) + "° E";
+
+
+    /* Packet time */
+
+    document.getElementById("packet").innerText =
+        new Date().toLocaleTimeString();
+
+
+    /* Chart */
+
+    let bars = document.querySelectorAll(".bar");
+
+    bars.forEach(bar => {
+
+        let height =
+            35 + Math.random()*55;
+
+        bar.style.height =
+            height + "%";
+
+    });
+
+}
+
+
+/* LOCATE BUTTON */
+
+function locateTarget(){
+
+    const target =
+        document.getElementById("location");
+
+    target.style.background = "#22c55e";
+    target.style.boxShadow =
+        "0 0 30px #22c55e";
+
+    setTimeout(()=>{
+
+        target.style.background = "#ef4444";
+        target.style.boxShadow =
+            "0 0 20px #ef4444";
+
+    },2000);
+
+    alert(
+        "TARGET LOCATED\n\n" +
+        "LoRaWAN triangulation successful.\n" +
+        "Estimated region: Chennai\n" +
+        "Tracking confidence: 87%"
+    );
+
+}
+
+
+/* AUTO UPDATE */
+
+setInterval(updateData,2000);
+
+updateData();
+
+</script>
+
+</body>
+</html>
